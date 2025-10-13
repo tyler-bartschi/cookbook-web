@@ -1,3 +1,5 @@
+# Frontend ignore
+
 # Logs
 frontend/logs
 frontend/*.log
@@ -22,3 +24,47 @@ frontend/*.ntvs*
 frontend/*.njsproj
 frontend/*.sln
 frontend/*.sw?
+
+
+# Backend ignore
+backend/target/
+!backend/.mvn/wrapper/maven-wrapper.jar
+!backend/**/src/main/**/target/
+!backend/**/src/test/**/target/
+backend/.kotlin
+
+### IntelliJ IDEA ###
+backend/.idea/modules.xml
+backend/.idea/jarRepositories.xml
+backend/.idea/compiler.xml
+backend/.idea/libraries/
+backend/.idea/shelf/
+backend/.idea/workspace.xml
+backend/*.iws
+backend/*.iml
+backend/*.ipr
+
+### Eclipse ###
+backend/.apt_generated
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings
+backend/.springBeans
+backend/.sts4-cache
+
+### NetBeans ###
+backend//nbproject/private/
+backend//nbbuild/
+backend//dist/
+backend//nbdist/
+backend//.nb-gradle/
+backend/build/
+!backend/**/src/main/**/build/
+!backend/**/src/test/**/build/
+
+### VS Code ###
+backend/.vscode/
+
+### Mac OS ###
+backend/.DS_Store
