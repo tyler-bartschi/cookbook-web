@@ -203,7 +203,8 @@ Body (JSON):
 - Build the map in one function, then replace the map being used after the new map is built
 - A user types in the query on the frontend, it sends the query to the backend that will search the map and respond with
   an ordered list, top of the list is the closest match
-- If more than 50% of the query's characters match a key, the key is included in the result to account for misspelling? these are given lower priority
+- If more than 50% of the query's characters match a key, the key is included in the result to account for misspelling?
+  these are given lower priority
 - exact matches at the top
 - Phrase matches have higher priority
 - tokenize into individual words, somehow ignore filler words that don't matter - use a predefined list of stopwords,
