@@ -46,7 +46,8 @@ Status: 201 (Created)
 Body (JSON):  
 {  
 "username": username,  
-"authToken": authToken  
+"authToken": authToken,  
+"favorites": list of recipeIDs and names (should be empty when registered)  
 }
 
 Failures:  
@@ -82,6 +83,7 @@ Body (JSON):
 {  
 "username": username,  
 "authToken": authToken,  
+"favorites": list of recipe names and IDs  
 }
 
 Failures:  
@@ -138,7 +140,8 @@ Status: 200 (OK)
 Body (JSON):  
 {  
 "username": username,  
-"email": email  
+"email": email,  
+"favorites": list of favorited recipeIDs and names  
 }
 
 Failures:  
@@ -179,7 +182,8 @@ Body (JSON):
 {  
 "username": username,  
 "email": email,  
-"authToken": authToken  
+"authToken": authToken,  
+"favorites": list of recipeIDs and names  
 }
 
 Failures:  
@@ -190,13 +194,60 @@ Body (JSON):
 "message": errorMessage  
 }
 
-// note to self - when asking for a recipe to display, backend will also have to return a list of recipeIDs paired with names for the other recipies portion, because the RecipeData itself only stores a list of the ids
+---
+
+## Get Recently Added Recipes
+
+path: /api/recipe/recents  
+method: GET
+
+**Request:**
+
+Headers: None  
+Body:  
+None
+
+**Response:**
+
+Success:  
+Status: 200 (OK)  
+Body (JSON):  
+{  
+"recents": list of recipe IDs and Names  
+}
+
+Failure:  
+Status: 404 (Not found - no recent recipes), 500 (Server Error)  
+
+
+\* will have to use SQL join to get both recipe IDs and names
+
+---
+
+## Get Recipe
+
+path: /api/recipe/{recipeID}  
+method: GET  
+
+**Request:**
+
+Headers: None  
+Body:  
+None  
+
+**Response:**
+
+
+
+// note to self - when asking for a recipe to display, backend will also have to return a list of recipeIDs paired with
+names for the other recipes portion, because the RecipeData itself only stores a list of the ids. Also, add a java data
+object that's just a recipe id and name?
 
 ---
 
 ## Search Engine
 
-- List of all recipies by a certain user can be obtained just with SQL search
+- List of all recipes by a certain user can be obtained just with SQL search
 - Build a map of keywords, with the key being the keyword and the value being a list of all recipeIDs containing the
   keyword
 - Save this map into a SQL table for persistence across reloads
@@ -231,12 +282,12 @@ Body (JSON):
 
 UserData:
 
-| Field            | Type             | Description                              |
-|------------------|------------------|------------------------------------------|
-| username         | String (255)     |                                          |
-| email            | String (255)     |                                          |
-| password         | String (255)     |                                          |
-| favoriteRecipies | Collection\<int> | list of recipeIDs the user has favorited |
+| Field           | Type                     | Description                                        |
+|-----------------|--------------------------|----------------------------------------------------|
+| username        | String (255)             |                                                    |
+| email           | String (255)             |                                                    |
+| password        | String (255)             |                                                    |
+| favoriteRecipes | Collection\<recipeTuple> | list of recipeIDs and names the user has favorited |
 
 AuthData:
 
@@ -298,19 +349,26 @@ recipeIndex:
 | id         | int     | Recipe id, matches SQL id                                                     |
 | partOfName | boolean | True if the matching token is part of the name of the recipe, false otherwise |
 
+recipeTuple:
+
+| Field | Type   | Description |
+|-------|--------|-------------|
+| id    | int    | recipeID    |
+| name  | String | recipeName  |
+
 ---
 
 ## SQL Data Tables
 
 users:
 
-| Field            | Type         | Additional                            |
-|------------------|--------------|---------------------------------------|
-| id               | int          | NOT_NULL, AUTO_INCREMENT, PRIMARY_KEY |
-| username         | VARCHAR(255) | NOT_NULL, INDEX                       |
-| email            | VARCHAR(255) | NOT_NULL, INDEX                       |
-| password         | VARCHAR(255) | NOT_NULL                              |
-| favoriteRecipies | TEXT         | DEFAULT NULL                          |
+| Field           | Type         | Additional                            |
+|-----------------|--------------|---------------------------------------|
+| id              | int          | NOT_NULL, AUTO_INCREMENT, PRIMARY_KEY |
+| username        | VARCHAR(255) | NOT_NULL, INDEX                       |
+| email           | VARCHAR(255) | NOT_NULL, INDEX                       |
+| password        | VARCHAR(255) | NOT_NULL                              |
+| favoriteRecipes | TEXT         | DEFAULT NULL                          |
 
 auth:
 
@@ -321,23 +379,23 @@ auth:
 | authToken   | VARCHAR(255) | NOT_NULL, UNIQUE, INDEX               |
 | dateCreated | DATETIME     | NOT_NULL, INDEX                       |
 
-recipies:
+recipes:
 
 | Field          | Type                   | Additional                            |
 |----------------|------------------------|---------------------------------------|
 | id             | int                    | NOT_NULL, AUTO_INCREMENT, PRIMARY_KEY |
 | name           | VARCHAR(255)           | NOT_NULL, INDEX                       |
-| userID         | int                    | NOT_NULL, FOREIGN_KEY                 |
-| ingredients    | TEXT                   | DEFAULT NULL                          |
-| cookTime       | VARCHAR(255)           | DEFAULT NULL                          |
-| directions     | TEXT                   | DEFAULT NULL                          |
 | categoryByType | ENUM(see TypeCategory) | DEFAULT NULL, INDEX                   |
-| amount         | int                    | DEFAULT NULL, INDEX                   |
-| otherRecipes   | TEXT                   | DEFAULT NULL                          |
+| cookTime       | VARCHAR(255)           | DEFAULT NULL                          |
 | temperature    | int                    | DEFAULT NULL                          |
+| amount         | int                    | DEFAULT NULL, INDEX                   |
+| postedBy       | int                    | NOT_NULL, FOREIGN_KEY                 |
 | description    | TEXT                   | DEFAULT NULL                          |
+| ingredients    | TEXT                   | DEFAULT NULL                          |
+| directions     | TEXT                   | DEFAULT NULL                          |
+| otherRecipes   | TEXT                   | DEFAULT NULL                          |
 
-recentlyAddedRecipies:
+recentlyAddedRecipes:
 
 | Field     | Type     | Additional                            |
 |-----------|----------|---------------------------------------|
@@ -345,7 +403,7 @@ recentlyAddedRecipies:
 | recipeID  | int      | NOT_NULL, FOREIGN_KEY                 |
 | dateAdded | DATETIME | NOT_NULL, INDEX                       |
 
-\* maximum allowed in recentlyAddedRecipies is 10. If another recipie is added that will put the total over 10, delete
+\* maximum allowed in recentlyAddedRecipes is 10. If another recipie is added that will put the total over 10, delete
 the oldest recipe and add the new one in its place
 
 searchEngine:
