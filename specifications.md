@@ -218,7 +218,10 @@ Body (JSON):
 
 Failure:  
 Status: 404 (Not found - no recent recipes), 500 (Server Error)  
-
+Body (JSON):  
+{  
+"message": errorMessage  
+}
 
 \* will have to use SQL join to get both recipe IDs and names
 
@@ -237,11 +240,104 @@ None
 
 **Response:**
 
+Success:  
+Status: 200 (OK)  
+Body (JSON):  
+{  
+"recipeID": recipeID,  
+"recipeName": recipeName,  
+"postedBy": postedBy,  
+"ingredientsList": list of ingredients for the recipe, as a Collection\<Ingredient>,  
+"cookTime": cook time,  
+"directions": list of instructions, as a Collection\<String>,  
+"categoryByType": TypeCategory enum,  
+"amount": amount,  
+"otherRecipes": list of recipe IDs and names, as a Collection\<recipeTuple>,  
+"temperature": temperature,  
+"description": description  
+}  
 
+Failures:  
+Status: 404 (Not found - no recipe by that ID), 500 (Server Error)  
+Body (JSON):  
+{  
+"message": errorMessage  
+}  
 
 // note to self - when asking for a recipe to display, backend will also have to return a list of recipeIDs paired with
 names for the other recipes portion, because the RecipeData itself only stores a list of the ids. Also, add a java data
 object that's just a recipe id and name?
+
+---
+
+## Get Favorites
+
+path: /api/recipe/favorites
+
+**Request:**
+
+Headers: Authentication  
+Body: None
+
+**Response:**
+
+Success:  
+Status: 200 (OK)  
+Body (JSON):  
+{  
+"favorites": list of recipeIDs and names  
+}
+
+Failures:
+Status: 401 (Unauthorized - bad auth), 404 (Not found - no favorites yet?), 500 (Server error)
+
+---
+
+## Add Recipe
+
+path: /api/recipe/create
+
+**Request:**
+
+Headers: Authentication  
+Body (JSON):  
+{  
+"recipeName": name of recipe,  
+"ingredientsList": list of ingredients,  
+"cookTime": cook time,  
+"directions": list of instructions,  
+"categoryByType": category,  
+"amount": amount,  
+"otherRecipes": other recipes needed,  
+"temperature": temperature,  
+"description": description  
+}
+
+**Response:**
+
+Success:  
+Status: 200 (OK)  
+Body (JSON):  
+{  
+"recipeID": recipeID,  
+"recipeName": recipeName,  
+"postedBy": postedBy,  
+"ingredientsList": list of ingredients for the recipe, as a Collection\<Ingredient>,  
+"cookTime": cook time,  
+"directions": list of instructions, as a Collection\<String>,  
+"categoryByType": TypeCategory enum,  
+"amount": amount,  
+"otherRecipes": list of recipe IDs and names, as a Collection\<recipeTuple>,  
+"temperature": temperature,  
+"description": description  
+}  
+
+Failures:  
+Status: 400 (Bad request - malformed), 401 (Unauthorized - bad auth), 409 (Conflict - existing recipe), 500 (Server error)  
+Body (JSON):  
+{  
+"message": errorMessage  
+}
 
 ---
 
